@@ -13,63 +13,56 @@ int main(int argc, char **argv)
         return -1;
     }
     string dir = argv[1];
-    VideoWriter writeVid;
 
+    VideoCapture inputVid;
+    inputVid.open(dir + "/1.mp4");
+    Mat frame;
+    inputVid >> frame; //等价于cap.read(frame);
     Mat img1 = imread(dir + "/1.jpg", 1);
     Mat img2 = imread(dir + "/2.jpg", 1);
     Mat img3 = imread(dir + "/3.jpg", 1);
     Mat img4 = imread(dir + "/4.jpg", 1);
     Mat img5 = imread(dir + "/5.jpg", 1);
     Mat img6 = imread(dir + "/6.jpg", 1);
-    cout << "size3= " << img3.cols << ", " << img3.rows << endl;
-    cout << "size4= " << img4.cols << ", " << img4.rows << endl;
-    cout << "size5= " << img5.cols << ", " << img5.rows << endl;
-    cout << "size6= " << img6.cols << ", " << img6.rows << endl;
+    Size s(frame.cols, frame.rows);
+    VideoWriter writeVid;
+    writeVid.open("./out.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 25, s);
 
     Mat combine12;
+    Mat back(s, CV_8UC3, Scalar(0, 0, 0));
+    Mat mid(s, CV_8UC3, Scalar(0, 0, 0));
 
     putText(img1, "2019", Point(round(0.2 * img1.rows), round(0.8 * img1.cols)), FONT_HERSHEY_SIMPLEX, 2, Scalar(0, 0, 255), 5);
     putText(img2, "2021", Point(round(0.8 * img1.rows), round(0.8 * img1.cols)), FONT_HERSHEY_SIMPLEX, 2, Scalar(0, 0, 255), 5);
     hconcat(img1, img2, combine12);
 
-    VideoCapture inputVid;
-    inputVid.open(dir + "/1.mp4");
-    Mat frame;
-    inputVid >> frame; //等价于cap.read(frame);s
-    Size s(frame.cols, frame.rows);
-    Mat back(s, CV_8UC3, Scalar(0, 0, 0));
-    Mat mid(s, CV_8UC3, Scalar(0, 0, 0));
-    cout << "s= " << s.width << ", " << s.height << endl;
-
-    Mat head(s, CV_8UC3, Scalar(37, 193, 255));
-
-    writeVid.open("./out.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 25, s);
-
+    Mat head(s, CV_8UC3, Scalar(37, 193, 255)); // 创建片头图片并写入文字
     putText(head, "2021", Point(round(0.4 * head.cols), round(0.4 * head.rows)), QT_FONT_NORMAL, 2, Scalar(0, 0, 0), 5);
     putText(head, "\"Sanhao\" Tennis Championship", Point(round(0.05 * head.cols), round(0.6 * head.rows)), QT_FONT_NORMAL, 1.5, Scalar(0, 0, 0), 3);
-
     putText(head, "3190101087 Song Yunzhou", Point(round(0.8 * head.rows), round(0.55 * head.cols)), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 0), 2);
+    // 将片头写入目标视频
     for (int i = 0; i < 50; i++)
     {
         writeVid << head;
     }
 
+    // 图片缩放
     resize(combine12, combine12, s);
     resize(img5, img5, s);
     resize(img6, img6, s);
 
-    for (int k = mid.cols - mid.cols % 100; k > 100; k -= 100)
+    for (int k = mid.cols - mid.cols % 100; k > 100; k -= 100) // 确定新旧图像分割位置
     {
-        for (int i = 0; i < mid.rows; i++)
+        for (int i = 0; i < mid.rows; i++) // 对于补间动画的每一帧的每一个像素
             for (int j = 0; j < mid.cols; j++)
             {
-                if (j < k)
+                if (j < k) // 分别写入新旧图像的部分
                     mid.at<Vec3b>(Point(j, i)) = head.at<Vec3b>(Point(head.cols - k + j, i));
                 else
                     mid.at<Vec3b>(Point(j, i)) = combine12.at<Vec3b>(Point(j - k, i));
             }
         putText(mid, "3190101087 Song Yunzhou", Point(round(0.8 * mid.rows), round(0.55 * mid.cols)), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 0), 2);
-        writeVid << mid;
+        writeVid << mid; // 打上标签后写入目标文件
     }
 
     putText(combine12, "3190101087 Song Yunzhou", Point(round(0.8 * combine12.rows), round(0.55 * combine12.cols)), FONT_HERSHEY_SIMPLEX, 1, Scalar(250, 250, 250), 2);
@@ -78,13 +71,13 @@ int main(int argc, char **argv)
         writeVid << combine12;
     }
 
-    Size re(637, 478);
+    Size re(637, 478); // 按比例缩放图像
     Mat re3;
     resize(img3, re3, re);
-    cout << re3.size << endl;
+    // 将较小的图像与黑色背景叠加
     for (int i = 0; i < re3.rows; i++)
         for (int j = 0; j < re3.cols; j++)
-        {            
+        {
             back.at<Vec3b>(Point(j + 100, i)) = re3.at<Vec3b>(Point(j, i));
         }
 
@@ -199,9 +192,9 @@ int main(int argc, char **argv)
         inputVid >> frame;
     }
 
-    namedWindow("Display Image", WINDOW_AUTOSIZE);
-    imshow("Display Image", combine12);
-    waitKey(0);
+    // namedWindow("Display Image", WINDOW_AUTOSIZE);
+    // imshow("Display Image", combine12);
+    // waitKey(0);
     writeVid.release();
     inputVid.release(); //释放资源
     return 0;

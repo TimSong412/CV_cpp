@@ -37,6 +37,8 @@
 # Configure
 *.json
 
-# Report and Docs
+# Report, Docs and Zips
 *.docx
 *.doc
+*.pdf
+*.zip
