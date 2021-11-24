@@ -36,3 +36,7 @@
 
 # Configure
 *.json
+
+# Report and Docs
+*.docx
+*.doc
