@@ -43,3 +43,6 @@
 *.pdf
 *.zip
 *.rar
+
+# python files
+tempCodeRunnerFile.py
