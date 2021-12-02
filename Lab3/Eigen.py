@@ -44,8 +44,6 @@ for i in range(len(rawimgs)):
 
 # cv2.imshow("new", newimgs[0].reshape(80, 60))
 
-
-
 COVM = np.cov(np.array(newimgs), rowvar=False)
 print(COVM.shape)
 st = time.time()
