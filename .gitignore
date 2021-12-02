@@ -46,3 +46,6 @@
 
 # python files
 tempCodeRunnerFile.py
+
+# large imgs
+*.jpg

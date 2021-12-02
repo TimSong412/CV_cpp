@@ -1,14 +1,15 @@
 import os
-# import numpy as np
+import numpy as np
 import cv2
 FILEDIR = "C:\\Users\\10347\\OneDrive - zju.edu.cn\\ZJU_online\\CV\\CV_cpp\\Lab3"
-MYDIR = "/home/tim/文档/CV/CV_cpp/Lab3/data/meraw"
+DATADIR = "C:\\Users\\10347\\OneDrive - zju.edu.cn\\ZJU_online\\CV\\CV_cpp\\Lab3\\data"
 
-for root, dirs, files in os.walk(os.path.join(MYDIR)):
-    for file in files:
-        name = os.path.splitext(file)
-        img = cv2.imread(os.path.join(root, file), cv2.IMREAD_GRAYSCALE)
-        
-        cv2.imshow("crop", img)
-        cv2.waitKey(0)
-        
+
+testimg = cv2.imread(os.path.join(FILEDIR, "me.jpg"), cv2.IMREAD_GRAYSCALE)
+cropimg = testimg[64:1230, :]
+resizeimg = cv2.resize(cropimg, (92, 112))
+# resizeimg[51, 25] = 255
+# resizeimg[53, 54] = 255
+cv2.imshow("test", resizeimg)
+cv2.waitKey(0)
+cv2.imwrite(os.path.join(DATADIR, "test1.png"), resizeimg)
