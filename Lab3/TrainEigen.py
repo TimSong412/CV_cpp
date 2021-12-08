@@ -6,6 +6,11 @@ import sys
 DATADIR = "C:\\Users\\10347\\OneDrive - zju.edu.cn\\ZJU_online\\CV\\CV_cpp\\Lab3\\data"
 FILEDIR = "C:\\Users\\10347\\OneDrive - zju.edu.cn\\ZJU_online\\CV\\CV_cpp\\Lab3"
 
+if len(sys.argv) < 3:
+    print("Too Few Args!")
+    exit(1)
+
+# read images and corresponding txts
 locs = []
 rawimgs = []
 for root, dirs, files in os.walk(os.path.join(DATADIR)):
@@ -17,7 +22,7 @@ for root, dirs, files in os.walk(os.path.join(DATADIR)):
                     txt = os.path.join(subroot, name[0]+".txt")
                     png = os.path.join(subroot, subfile)
                     if os.path.exists(txt):
-                        txtfile = open(txt, 'r')
+                        txtfile = open(txt, 'r')                                
                         img = cv2.imread(png, cv2.IMREAD_GRAYSCALE)
                         rawloc = txtfile.read()
                         loc = np.array(list(map(int, rawloc.split())))
@@ -27,10 +32,11 @@ for root, dirs, files in os.walk(os.path.join(DATADIR)):
                         # print(loc)
                         # cv2.imshow("img", img)
                         # cv2.waitKey(0)
+
+# reshape the images by the txt eye locations
 meanpos = np.array(np.around(np.mean(locs, 0)), dtype=int)
 # mean:[27.49226804 51.7628866  60.93556701 52.2242268 ]
 dstpts = np.array([meanpos[0:2], meanpos[2:4], [45, 0]], dtype=np.float32)
-# print(dstpts)
 newimgs = []
 for i in range(len(rawimgs)):
     srcpts = np.array([locs[i][0:2], locs[i][2:4], [45, 0]], dtype=np.float32)
@@ -42,17 +48,15 @@ for i in range(len(rawimgs)):
     cv2.imshow("trans", cropimg.reshape(80, 60))
     cv2.waitKey(10)                    
 
-# cv2.imshow("new", newimgs[0].reshape(80, 60))
-
+# calculate the eigenvectors and eigenvalues by numpy functions (EXTREMELY SLOW!)
 COVM = np.cov(np.array(newimgs), rowvar=False)
 print("Start to find Eigenvalue and Eigenvectors, Please Wait for About 70s")
 st = time.time()
 rawval, raweig = np.linalg.eig(COVM)
-
 ed = time.time()
-
 print("time= ", ed-st)
 
+# get top few eigenvalues/eigenvectors
 percent = float(sys.argv[1])/100
 idx = np.argsort(np.real(-rawval))
 total = np.sum(np.real(rawval))
@@ -65,11 +69,12 @@ for i in range(len(idx)):
     eigs.append(np.real(raweig[:, i].reshape(-1)))
     print("eigval= ", rawval[idx[i]].real)
     if acc/total >= percent:
-        print("Save Top", i, "Eigen Vectors to file: ", FILEDIR+"\\topeigs.npy")
+        print("Save Top", i, "Eigen Vectors to file: ", FILEDIR+"\\"+sys.argv[2]+".npy")
         break
+# save eigenvectors by numpy files
+np.save(os.path.join(FILEDIR, sys.argv[2]), np.array(eigs))
 
-np.save(os.path.join(FILEDIR, "topeigs"), np.array(eigs))
-
+# generate the final image
 final = np.zeros((160, 300), dtype=np.uint8)
 for i in range(5):
     raw = eigs[i].reshape(80, 60)*255/np.max(eigs[i])
