@@ -47,5 +47,6 @@
 # python files
 tempCodeRunnerFile.py
 
-# large imgs
+# large media
 *.jpg
+*.mp4
