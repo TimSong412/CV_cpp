@@ -50,3 +50,6 @@ tempCodeRunnerFile.py
 # large media
 *.jpg
 *.mp4
+
+# example filedir
+Learning-OpenCV-3_examples
