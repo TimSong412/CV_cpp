@@ -20,9 +20,9 @@ for root, dirs, files in os.walk("./HW4_images/calibration"):
         intM = cv2.calibrateCamera(objectPoints=[objpts], imagePoints=[corners], imageSize=img.shape[0:2], cameraMatrix=None, distCoeffs=None)
         undist = cv2.undistort(img, intM[1], intM[2])
         # print(intM[1:3])  
-        cv2.imshow("ori", cv2.resize(img, (800, 600)))
-        cv2.imshow("und", cv2.resize(undist, (800, 600)))
-        cv2.waitKey(0)     
+        # cv2.imshow("ori", cv2.resize(img, (800, 600)))
+        # cv2.imshow("und", cv2.resize(undist, (800, 600)))
+        # cv2.waitKey(0)     
         Msum += intM[1]/intM[0]
         powersum += 1/intM[0]
         distsum += intM[2]/intM[0]
